@@ -1,0 +1,259 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: yolo-alerts
+      folder: yolo
+      interval: 1m
+      rules:
+        - uid: eei4uszv3nz0gc
+          title: Request Rate
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: feh2mmi8gz7cwa
+              model:
+                columns:
+                    - selector: request_rate_per_minute
+                      text: request_rate
+                      type: number
+                filters: []
+                format: table
+                global_query_id: ""
+                intervalMs: 1000
+                maxDataPoints: 43200
+                parser: backend
+                refId: A
+                root_selector: ""
+                source: url
+                type: json
+                url: /metrics
+                url_options:
+                    data: ""
+                    method: GET
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 600
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email
+        - uid: aei4uzc56lszkd
+          title: Average Latency
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: feh2mmi8gz7cwa
+              model:
+                columns:
+                    - selector: avg_latency_ms
+                      text: avg_lat
+                      type: number
+                filters: []
+                format: table
+                global_query_id: ""
+                intervalMs: 1000
+                maxDataPoints: 43200
+                parser: backend
+                refId: A
+                root_selector: ""
+                source: url
+                type: json
+                url: /metrics
+                url_options:
+                    data: ""
+                    method: GET
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: mean
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 100
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email
+        - uid: bei4vj72sdxq8b
+          title: Health
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: feh2mmi8gz7cwa
+              model:
+                columns:
+                    - selector: Status
+                      text: status
+                      type: boolean
+                filters: []
+                format: table
+                global_query_id: ""
+                intervalMs: 1000
+                maxDataPoints: 43200
+                parser: backend
+                refId: A
+                root_selector: ""
+                source: url
+                type: json
+                url: /health-status
+                url_options:
+                    data: ""
+                    method: GET
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params: []
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - B
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                reducer: last
+                refId: B
+                type: reduce
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                        type: ne
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: B
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          isPaused: false
+          notification_settings:
+            receiver: grafana-default-email

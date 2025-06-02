@@ -1,0 +1,111 @@
+groups:
+  - name: model_performance_recordings
+    rules:
+      # Average accuracy across all classes for each model
+      - record: model_avg_accuracy
+        expr: avg by (model) (model_detection_metrics{metric="accuracy"})
+
+      # Average precision across all classes for each model
+      - record: model_avg_precision
+        expr: avg by (model) (model_detection_metrics{metric="precision"})
+
+      # Average recall across all classes for each model
+      - record: model_avg_recall
+        expr: avg by (model) (model_detection_metrics{metric="recall"})
+
+      # How many images are processed every 5 minutes
+      - record: model_processing_rate
+        expr: rate(model_detection_metrics{metric="processed_images"}[5m])
+
+      # Class-specific accuracy changes (delta over 5m)
+      - record: model_accuracy_change_5m
+        expr: model_detection_metrics{metric="accuracy"} - model_detection_metrics{metric="accuracy"} offset 5m
+
+      # Model comparison (difference between models)
+      - record: model_accuracy_difference
+        expr: |
+          model_detection_metrics{model="model_0", metric="accuracy"} 
+          - on (class_name) 
+          model_detection_metrics{model="model_1", metric="accuracy"}
+
+      # Rolling average accuracy (over 1h)
+      - record: model_accuracy_1h_avg
+        expr: avg_over_time(model_detection_metrics{metric="accuracy"}[1h])
+
+      # Minimum accuracy per model and class over 5m
+      - record: model_accuracy_min
+        expr: min_over_time(model_detection_metrics{metric="accuracy"}[5m])
+
+      # Maximum accuracy per model and class over 5m
+      - record: model_accuracy_max
+        expr: max_over_time(model_detection_metrics{metric="accuracy"}[5m])
+        
+      # Minimum precision per model and class over 5m
+      - record: model_precision_min
+        expr: min_over_time(model_detection_metrics{metric="precision"}[5m])
+        
+      # Maximum precision per model and class over 5m
+      - record: model_precision_max
+        expr: max_over_time(model_detection_metrics{metric="precision"}[5m])
+        
+      # Minimum recall per model and class over 5m
+      - record: model_recall_min
+        expr: min_over_time(model_detection_metrics{metric="recall"}[5m])
+        
+      # Maximum recall per model and class over 5m
+      - record: model_recall_max
+        expr: max_over_time(model_detection_metrics{metric="recall"}[5m])
+
+      # Average confidence per model and class
+      - record: model_confidence_avg
+        expr: |
+          rate(model_prediction_confidence_sum[5m])
+          /
+          rate(model_prediction_confidence_count[5m])
+
+      # 95th percentile confidence
+      - record: model_confidence_p95
+        expr: histogram_quantile(0.95, rate(model_prediction_confidence_bucket[5m]))
+
+      # 50th percentile (median) confidence
+      - record: model_confidence_p50
+        expr: histogram_quantile(0.50, rate(model_prediction_confidence_bucket[5m]))
+
+      # Percentage of high confidence predictions (>0.9)
+      - record: model_high_confidence_ratio
+        expr: |
+          (
+            rate(model_prediction_confidence_bucket{le="1.0"}[5m])
+            -
+            rate(model_prediction_confidence_bucket{le="0.9"}[5m])
+          )
+          /
+          rate(model_prediction_confidence_count[5m])
+
+      # Rolling 1h average confidence
+      - record: model_confidence_1h_avg
+        expr: avg_over_time(model_confidence_avg[1h])
+
+      # Confidence standard deviation (approximation using percentiles)
+      - record: model_confidence_spread
+        expr: |
+          (
+            histogram_quantile(0.84, rate(model_prediction_confidence_bucket[5m]))
+            -
+            histogram_quantile(0.16, rate(model_prediction_confidence_bucket[5m]))
+          ) / 2
+      # Max confidence
+      - record: model_confidence_max
+        expr: histogram_quantile(1, rate(model_prediction_confidence_bucket[5m]))
+
+      # Min confidence (approximation using very low percentile)
+      - record: model_confidence_min
+        expr: histogram_quantile(0, rate(model_prediction_confidence_bucket[5m]))
+
+      # Total processed images per model across all time
+      - record: model_total_processed_images_all_time
+        expr: model_total_processed_images_total
+
+      # Processing rate (images per minute)
+      - record: model_processing_rate_per_minute
+        expr: rate(model_total_processed_images_total[5m]) * 60
