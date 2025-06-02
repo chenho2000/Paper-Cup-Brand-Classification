@@ -1,5 +1,5 @@
 # Paper-Cup-Brand-Classification
-
+# Please note that, due to policy, the dataset and models cannot be shared publicly as they are considered course property. Feel free to reach out if you’d like to learn more.
 ## Overview
 A computer vision system for detecting Tim Hortons cups (Timmies) and generic paper cups in images using YOLOv11. The project covers the full ML lifecycle from data collection to deployment.
 
